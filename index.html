@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Adviento 2025 - Sellos (PRUEBA)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(to bottom, #f8e8e8 0%, #ffd4d4 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 30px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .header .title-line1 {
+            color: #ffb3ba;
+            font-weight: normal;
+        }
+
+        .header .title-line2 {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .header .year {
+            color: #ffb3ba;
+            font-size: 2.5em;
+            font-weight: bold;
+            letter-spacing: 5px;
+        }
+
+        .stamps-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+
+        .stamp {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 3px dashed rgba(255, 255, 255, 0.4);
+        }
+
+        /* Borde ondulado de sello */
+        .stamp::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: inherit;
+            -webkit-mask: 
+                radial-gradient(circle at 0 0, transparent 4px, black 4px) top left,
+                radial-gradient(circle at 100% 0, transparent 4px, black 4px) top right,
+                radial-gradient(circle at 0 100%, transparent 4px, black 4px) bottom left,
+                radial-gradient(circle at 100% 100%, transparent 4px, black 4px) bottom right;
+            -webkit-mask-size: 51% 51%;
+            -webkit-mask-repeat: no-repeat;
+            mask: 
+                radial-gradient(circle at 0 0, transparent 4px, black 4px) top left,
+                radial-gradient(circle at 100% 0, transparent 4px, black 4px) top right,
+                radial-gradient(circle at 0 100%, transparent 4px, black 4px) bottom left,
+                radial-gradient(circle at 100% 100%, transparent 4px, black 4px) bottom right;
+            mask-size: 51% 51%;
+            mask-repeat: no-repeat;
+        }
+
+        .stamp:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Colores alternados rosa y rojo */
+        .stamp.color-pink {
+            background: #ffb3ba;
+        }
+
+        .stamp.color-red {
+            background: #dc3545;
+        }
+
+        .stamp-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .stamp-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stamp-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+        }
+
+        .stamp.opened .stamp-number {
+            font-size: 1em;
+        }
+
+        .stamp-text {
+            display: none;
+            font-size: 0.65em;
+            color: white;
+            margin-top: 5px;
+            line-height: 1.2;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .stamp.opened .stamp-text {
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ffb3ba 0%, #ff8a9a 100%);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 3px solid #dc3545;
+            animation: modalAppear 0.3s ease;
+        }
+
+        @keyframes modalAppear {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #dc3545;
+        }
+
+        .modal-content p {
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .close-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .test-notice {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                max-width: 95%;
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .stamps-grid {
+                gap: 6px;
+            }
+
+            .stamp-number {
+                font-size: 1.5em;
+            }
+
+            .stamp-icon {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="test-notice">
+            ⚠️ VERSIÓN DE PRUEBA - Todos los días desbloqueados
+        </div>
+
+        <div class="header">
+            <h1>
+                <div class="title-line1">Calendario de</div>
+                <div class="title-line2">Adviento</div>
+            </h1>
+            <div class="year">2025</div>
+        </div>
+
+        <div class="stamps-grid" id="calendar">
+            <!-- Los sellos se generarán con JavaScript -->
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 id="modal-day">Día 1</h2>
+            <p id="modal-text">Contenido del día</p>
+            <button class="close-btn" onclick="closeModal()">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        // Iconos para cada día
+        const dayIcons = {
+            1: '🎄', 2: '🎀', 3: '🎁', 4: '🍪', 
+            5: '🧶', 6: '🧦', 7: '🏠', 8: '🔔',
+            9: '❄️', 10: '🍬', 11: '🌿', 12: '🦌',
+            13: '☕', 14: '🏰', 15: '⛄', 16: '🕯️',
+            17: '🕊️', 18: '🧤', 19: '🎅', 20: '🎨',
+            21: '🛷', 22: '☕', 23: '📅', 24: '✨',
+            25: '🎄'
+        };
+
+        // Contenido de cada día
+        const dayContents = {
+            1: '¡Empieza diciembre y vamos a acabar el año a tope! Si todavía no te has apuntado al STRAVA Club para que puedas colgar tus resultados todos los días. EMPEZAMOS FACIL – hoy es 1 de diciembre por lo que hoy solo hay que correr 1 km',
+            2: '¡Seguimos! A por el martes, hoy encuentra un momento para correr 2 km',
+            3: 'Tercer día, hoy hacemos un cambio – a correr 2 km y 10 flexiones',
+            4: '¡Hoy va con reto! Corre 3 km con un gorro de santa Claus o vestido de rojo',
+            5: '¡Viernes! ¡A saltar – haz 15 Burpees!',
+            6: 'Tranquilo… el sábado se descansa – Encuentra un árbol de navidad y hazte una foto con el 😊',
+            7: 'Vamos a por el domingo, corre 3 km escuchando villancicos',
+            8: 'Lunes, pero lunes de puente – Con esta emoción vamos a correr 3.5 km, si encuentras un muñeco de nieve, hazte una foto!',
+            9: 'Para que este martes sea menos martes corre 4 km pero tienes que ir acompañado!',
+            10: 'Se nota el frio… hoy quédate en casa y haz 15 flexiones',
+            11: 'Juernes de diciembre y antes de ir a tomarte algo hacer 15 burpees',
+            12: 'Empezamos el finde con ganas, vamos a correr 4 km y acaba con 15 flexiones',
+            13: 'DESCANSOOOO!! ¡Encuentra el chocolate más rico y mándanos una foto!',
+            14: 'Gánate el chocolate caliente haciendo mínimo 3 km y 20 abdominales',
+            15: 'Sal a correr y no pares hasta que no veas 3 árboles de navidad',
+            16: 'Corre que llega Papa Noel, corre hasta que veas 2 Papa Noeles o 2 renos, haz 15 flexiones cuando llegues a casa',
+            17: '¡Hoy toca hacer 25% de una media maratón! Haz 5 km',
+            18: 'Ya solo queda una semana para Nochebuena, y por ello vamos a correr 5 km pero hoy tienes que ir acompañado',
+            19: 'Viernes y para empezar bien el finde 15 flexiones y 20 abdominales',
+            20: 'Sabado…. Descansamosss bueno échate unos bailes y mandanos una foto de tus bailes prohibidos',
+            21: 'Recta final y aquí no estamos cansados – vamos a correr 5.5 km con el gorro de santa Claus o vestido de rojo',
+            22: 'Hoy sal a correr hasta que veas 3 ángeles de decoración',
+            23: '¡Mañana es nochebuena y pasado navidad! Penultimo dia del calendario – y tocan otros 6 km',
+            24: '¡FELIZ NOCHEBUENA! Hoy nos juntamos todos los que podamos para correr 6.5 km',
+            25: '¡Feliz Navidad! 🎄🎁'
+        };
+
+        // Orden desordenado de los días
+        const dayOrder = [7, 15, 3, 21, 11, 18, 1, 13, 24, 5, 19, 8, 16, 4, 22, 9, 14, 2, 20, 6, 23, 12, 17, 10, 25];
+
+        function createCalendar() {
+            const calendar = document.getElementById('calendar');
+            
+            dayOrder.forEach((day, index) => {
+                const stamp = document.createElement('div');
+                stamp.className = 'stamp';
+                stamp.dataset.day = day;
+                
+                // Alternar colores rosa y rojo
+                const colorClass = (index % 2 === 0) ? 'color-pink' : 'color-red';
+                stamp.classList.add(colorClass);
+                
+                const icon = dayIcons[day];
+                const text = dayContents[day];
+                
+                stamp.innerHTML = `
+                    <div class="stamp-content">
+                        <div class="stamp-icon">${icon}</div>
+                        <div class="stamp-number">${day}</div>
+                        <div class="stamp-text">${text}</div>
+                    </div>
+                `;
+                
+                stamp.addEventListener('click', () => openStamp(day));
+                calendar.appendChild(stamp);
+            });
+        }
+
+        function openStamp(day) {
+            const icon = dayIcons[day];
+            const text = dayContents[day];
+            
+            document.getElementById('modal-day').textContent = `🎄 Día ${day} 🎄`;
+            document.getElementById('modal-text').innerHTML = `
+                <div style="font-size: 3em; margin-bottom: 20px;">${icon}</div>
+                <div>${text}</div>
+            `;
+            document.getElementById('modal').classList.add('show');
+            
+            const stampElement = document.querySelector(`[data-day="${day}"]`);
+            stampElement.classList.add('opened');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') {
+                closeModal();
+            }
+        });
+
+        createCalendar();
+    </script>
+</body>
+</html>
